@@ -9,15 +9,15 @@ runson: ${matrix.os}
 matrix:
   version: ["latest"]
   os: ["win", "mac"]
-  browser: ["firefox", "chrome", "edge", "safari"]
+  project: ["chrome", "pw-webkit"] # Other projects: "pw-firefox", "MicrosoftEdge"
 
 exclusionMatrix: 
   - os: ["win"]
-    browser: ["safari"]
+    project: ["pw-webkit"]
 
 autosplit: true
 concurrency: 4
-parallelism: 4
+parallelism: 2
 
 pre:
   - npm install
@@ -34,9 +34,15 @@ testDiscovery:
   macCommand: grep -nri 'describe' tests  | sed 's/:test.*//'
 
 
-testRunnerCommand: node hybridRunner.js ${matrix.browser} ${matrix.version} $test
+testRunnerCommand: npx playwright test $test --config=playwrightHybrid.config.js --project="${matrix.project}:${matrix.version}@lambdatest"
 
 retryOnFailure: true
 maxRetries: 1
 
 report: true
+partialReports:
+  frameworkName: playwright
+  location: playwright-report
+  type: html
+
+jobLabel: [playwright-VanillaJS, win-mac, hybrid] 

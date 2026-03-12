@@ -311,7 +311,7 @@ testSuiteStep: 90
 
 Global timeout, testSuite timeout, and testSuite timeout are set to 90 minutes.
  
-Because this is a hybrid approach, we enable autosplit and define a matrix in the same file. In this example, we are testing across combinations of Operating Systems and Browsers.
+Because this is a hybrid approach, we enable autosplit and define a matrix in the same file. In this example, we are testing across different Playwright projects with combinations of Operating Systems and Browsers.
 
 ```yaml
 autosplit: true
@@ -320,8 +320,9 @@ maxRetries: 2
 concurrency: 2
 
 matrix:
-  os: [win, mac]
-  browser: [chrome, firefox, edge]
+  version: ["latest"]
+  os: ["win", "mac"]
+  project: ["chrome", "pw-firefox", "MicrosoftEdge", "pw-webkit"]
 ```
 
 The runson key determines the platform on which the tests are executed. In a hybrid strategy, this is dynamically populated using the parameters defined in the matrix.
@@ -338,9 +339,9 @@ testDiscovery:
   mode: dynamic
   command: grep -nri 'describe' tests  | sed 's/:test.*//'
 
-testRunnerCommand: npx playwright test $test --project=${matrix.browser}
+testRunnerCommand: px playwright test $test --config=playwrightHybrid.config.js --project="${matrix.project}:${matrix.version}@lambdatest"
 ```
-In the above example, HyperExecute will dynamically discover all test scenarios. It will then spin up parallel machines for Windows and macOS, and further split the discovered tests across those machines, passing the dynamic ${matrix.browser} flag to Playwright.
+In the above example, HyperExecute will dynamically discover all test scenarios. It will then spin up parallel machines for Windows and macOS, and further split the discovered tests across those machines, invoking Playwright projects dynamically `${matrix.project}:${matrix.version}@lambdatest`.
 
 ### Pre Steps and Dependency Caching
 
